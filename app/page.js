@@ -83,17 +83,18 @@ function LandingPage({ onLogin, onSignup }) {
   const [email, setEmail] = useState("")
   const [joined, setJoined] = useState(false)
   const [stars, setStars] = useState([])
-useEffect(() => {
-  setStars(Array.from({length:100},(_,i)=>({
-    id:i,
-    left:Math.random()*100,
-    top:Math.random()*100,
-    size:Math.random()>0.8?2.5:1.5,
-    d:2+Math.random()*5,
-    delay:Math.random()*6,
-    op:0.1+Math.random()*0.5
-  })))
-}, [])
+
+  useEffect(() => {
+    setStars(Array.from({length:100},(_,i)=>({
+      id:i,
+      left:Math.random()*100,
+      top:Math.random()*100,
+      size:Math.random()>0.8?2.5:1.5,
+      d:2+Math.random()*5,
+      delay:Math.random()*6,
+      op:0.1+Math.random()*0.5
+    })))
+  }, [])
 
   return (
     <div style={{ height:"100vh", overflow:"auto", background:C.black, position:"relative" }}>
@@ -190,6 +191,92 @@ useEffect(() => {
           <Btn variant="ghost" size="lg" onClick={onLogin} style={{ borderRadius:100 }}>Log in</Btn>
         </div>
       </section>
+
+      {/* ── USP SECTION ── */}
+      <section style={{ position:"relative", zIndex:1, padding:"0 24px 100px", maxWidth:1100, margin:"0 auto" }}>
+        <div style={{ background:`linear-gradient(135deg,rgba(255,107,43,0.08),rgba(79,195,247,0.05))`, border:`1px solid rgba(255,107,43,0.2)`, borderRadius:24, padding:"60px 56px", display:"grid", gridTemplateColumns:"1fr 1fr", gap:48, alignItems:"center" }}>
+          <div>
+            <p style={{ fontSize:12, textTransform:"uppercase", letterSpacing:"0.15em", color:C.orange, fontWeight:600, marginBottom:16 }}>What is Postronaut?</p>
+            <h2 style={{ fontFamily:"Syne,sans-serif", fontSize:"clamp(28px,3.5vw,44px)", fontWeight:800, color:"#fff", letterSpacing:"-0.03em", lineHeight:1.1, marginBottom:20 }}>
+              Built for founders who do not have time to waste
+            </h2>
+            <p style={{ fontSize:16, color:C.muted, lineHeight:1.8, marginBottom:24 }}>
+              Postronaut is a social media management tool designed specifically for founders, creators, students and small startups. We believe powerful tools should not cost a fortune or require a marketing team to operate.
+            </p>
+            <p style={{ fontSize:16, color:C.muted, lineHeight:1.8 }}>
+              Write your content once, choose your platforms, and let Postronaut handle the rest — whether you want to post right now or schedule it for the perfect moment.
+            </p>
+          </div>
+          <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
+            {[
+              { icon:"⚡", title:"Post to all platforms instantly", desc:"Hit publish once and reach your entire audience across every platform simultaneously." },
+              { icon:"📅", title:"Schedule weeks in advance", desc:"Plan your content calendar ahead of time and let Postronaut post automatically." },
+              { icon:"📊", title:"See what is working", desc:"Unified analytics across all platforms so you know exactly what content performs best." },
+              { icon:"💰", title:"Priced for real people", desc:"Plans starting at $0 — designed for students, creators and founders, not enterprise teams." },
+            ].map(item=>(
+              <div key={item.title} style={{ display:"flex", gap:16, alignItems:"flex-start", background:C.card, border:`1px solid ${C.border}`, borderRadius:14, padding:"18px 20px" }}>
+                <div style={{ fontSize:24, flexShrink:0 }}>{item.icon}</div>
+                <div>
+                  <div style={{ fontFamily:"Syne,sans-serif", fontSize:14, fontWeight:700, color:"#fff", marginBottom:4 }}>{item.title}</div>
+                  <div style={{ fontSize:13, color:C.muted, lineHeight:1.6 }}>{item.desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── CROSS POSTING SECTION ── */}
+      <section style={{ position:"relative", zIndex:1, padding:"0 24px 100px", maxWidth:1100, margin:"0 auto", textAlign:"center" }}>
+        <p style={{ fontSize:12, textTransform:"uppercase", letterSpacing:"0.15em", color:C.orange, fontWeight:600, marginBottom:16 }}>Cross-posting made easy</p>
+        <h2 style={{ fontFamily:"Syne,sans-serif", fontSize:"clamp(32px,4vw,52px)", fontWeight:800, color:"#fff", letterSpacing:"-0.03em", lineHeight:1.1, marginBottom:20 }}>
+          Post everywhere,<br/><span style={{color:C.orange}}>at the same time</span>
+        </h2>
+        <p style={{ fontSize:17, color:C.muted, maxWidth:580, margin:"0 auto 56px", lineHeight:1.7 }}>
+          Stop switching between 6 apps to post the same content. With Postronaut, one post goes to all your platforms simultaneously — saving you hours every single week.
+        </p>
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16, marginBottom:40 }}>
+          {[
+            { stat:"8+", label:"Platforms supported", icon:"🌐" },
+            { stat:"1",  label:"Place to manage it all", icon:"📱" },
+            { stat:"10x",label:"Faster than manual posting", icon:"⚡" },
+            { stat:"$0", label:"To get started today", icon:"🎉" },
+          ].map(s=>(
+            <div key={s.stat} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:16, padding:"28px 20px", textAlign:"center" }}>
+              <div style={{ fontSize:28, marginBottom:10 }}>{s.icon}</div>
+              <div style={{ fontFamily:"Syne,sans-serif", fontSize:36, fontWeight:800, color:"#fff", marginBottom:6 }}>{s.stat}</div>
+              <div style={{ fontSize:13, color:C.muted }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ background:`linear-gradient(135deg,rgba(255,107,43,0.1),rgba(79,195,247,0.05))`, border:`1px solid rgba(255,107,43,0.2)`, borderRadius:16, padding:"28px 36px", display:"inline-flex", alignItems:"center", gap:20, textAlign:"left" }}>
+          <div style={{ fontSize:36 }}>🚀</div>
+          <div>
+            <div style={{ fontFamily:"Syne,sans-serif", fontSize:18, fontWeight:700, color:"#fff", marginBottom:4 }}>Post content to multiple social media platforms at the same time, all in one place.</div>
+            <div style={{ fontSize:14, color:C.muted }}>Cross-posting made easy — built for the way modern creators and founders actually work.</div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer style={{ position:"relative", zIndex:1, borderTop:`1px solid ${C.border}`, padding:"40px 48px" }}>
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:20, marginBottom:24 }}>
+          <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+            <div style={{ width:28, height:28, background:`linear-gradient(135deg,${C.orange},${C.amber})`, borderRadius:8, display:"flex", alignItems:"center", justifyContent:"center", fontSize:14 }}>🚀</div>
+            <span style={{ fontFamily:"Syne,sans-serif", fontWeight:800, fontSize:16, color:"#fff" }}>Post<span style={{color:C.orange}}>ronaut</span></span>
+          </div>
+          <div style={{ display:"flex", gap:24, flexWrap:"wrap" }}>
+            {[["Privacy Policy","#"],["Terms of Service","#"],["Blog","#"],["Changelog","#"],["X","#"]].map(([l,h])=>(
+              <a key={l} href={h} style={{ fontSize:13, color:C.muted, textDecoration:"none" }}>{l}</a>
+            ))}
+          </div>
+        </div>
+        <div style={{ borderTop:`1px solid ${C.border}`, paddingTop:20, display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:12 }}>
+          <p style={{ fontSize:13, color:C.muted }}>© 2026 Postronaut. All rights reserved.</p>
+          <p style={{ fontSize:13, color:C.muted }}>Post content to multiple social media platforms at the same time, all in one place. Cross-posting made easy.</p>
+        </div>
+      </footer>
+
     </div>
   )
 }
