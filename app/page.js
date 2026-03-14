@@ -78,6 +78,71 @@ const EmptyState = ({ icon, title, sub, action, onAction }) => (
   </div>
 )
 
+// ── REVIEW FORM ──
+function ReviewForm({ onSignup }) {
+  const [name, setName] = useState("")
+  const [role, setRole] = useState("")
+  const [review, setReview] = useState("")
+  const [rating, setRating] = useState(0)
+  const [hover, setHover] = useState(0)
+  const [submitted, setSubmitted] = useState(false)
+
+  const submit = () => {
+    if (!name.trim() || !review.trim() || rating === 0) {
+      alert("Please fill in your name, rating and review!")
+      return
+    }
+    setSubmitted(true)
+  }
+
+  if (submitted) return (
+    <div style={{ background:C.card, border:`1px solid rgba(74,222,128,0.3)`, borderRadius:20, padding:40, textAlign:"center" }}>
+      <div style={{ fontSize:56, marginBottom:16 }}>🎉</div>
+      <h3 style={{ fontFamily:"Syne,sans-serif", fontSize:20, fontWeight:700, color:"#fff", marginBottom:12 }}>Thank you, {name}!</h3>
+      <p style={{ fontSize:14, color:C.muted, lineHeight:1.7 }}>
+        Your review has been submitted and will appear here once verified. You are officially one of our first users!
+      </p>
+    </div>
+  )
+
+  return (
+    <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:20, padding:40 }}>
+      <h3 style={{ fontFamily:"Syne,sans-serif", fontSize:18, fontWeight:700, color:"#fff", marginBottom:6 }}>Leave a review</h3>
+      <p style={{ fontSize:13, color:C.muted, marginBottom:24 }}>Already using Postronaut? Share your experience with the community.</p>
+
+      {/* Star rating */}
+      <div style={{ marginBottom:20 }}>
+        <label style={{ fontSize:12, color:C.muted, fontWeight:500, display:"block", marginBottom:10 }}>Your rating</label>
+        <div style={{ display:"flex", gap:6 }}>
+          {[1,2,3,4,5].map(star=>(
+            <span key={star} onClick={()=>setRating(star)} onMouseEnter={()=>setHover(star)} onMouseLeave={()=>setHover(0)}
+              style={{ fontSize:32, cursor:"pointer", color:(hover||rating)>=star?"#ffb347":"rgba(255,255,255,0.15)", transition:"all 0.1s" }}>★</span>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ marginBottom:14 }}>
+        <label style={{ fontSize:12, color:C.muted, fontWeight:500, display:"block", marginBottom:7 }}>Your name</label>
+        <Input value={name} onChange={setName} placeholder="Jane Smith" />
+      </div>
+      <div style={{ marginBottom:14 }}>
+        <label style={{ fontSize:12, color:C.muted, fontWeight:500, display:"block", marginBottom:7 }}>Your role (optional)</label>
+        <Input value={role} onChange={setRole} placeholder="e.g. Founder at MyStartup" />
+      </div>
+      <div style={{ marginBottom:24 }}>
+        <label style={{ fontSize:12, color:C.muted, fontWeight:500, display:"block", marginBottom:7 }}>Your review</label>
+        <textarea value={review} onChange={e=>setReview(e.target.value)} placeholder="Share what you love about Postronaut..."
+          style={{ width:"100%", minHeight:100, padding:"11px 14px", background:C.surface, border:`1px solid ${C.border}`, borderRadius:10, color:C.text, fontSize:14, fontFamily:"'DM Sans',sans-serif", outline:"none", resize:"none" }}/>
+      </div>
+      <Btn onClick={submit} style={{ width:"100%", justifyContent:"center", borderRadius:10, padding:"13px" }}>Submit Review →</Btn>
+      <p style={{ fontSize:12, color:C.muted, marginTop:12, textAlign:"center" }}>
+        Don't have an account yet?{" "}
+        <span onClick={onSignup} style={{ color:C.orange, cursor:"pointer" }}>Try it free first →</span>
+      </p>
+    </div>
+  )
+}
+
 // ── LANDING PAGE ──
 function LandingPage({ onLogin, onSignup }) {
   const [email, setEmail] = useState("")
@@ -255,6 +320,93 @@ function LandingPage({ onLogin, onSignup }) {
             <div style={{ fontFamily:"Syne,sans-serif", fontSize:18, fontWeight:700, color:"#fff", marginBottom:4 }}>Post content to multiple social media platforms at the same time, all in one place.</div>
             <div style={{ fontSize:14, color:C.muted }}>Cross-posting made easy — built for the way modern creators and founders actually work.</div>
           </div>
+        </div>
+      </section>
+
+      {/* ── CONTENT STUDIO ── */}
+      <section style={{ position:"relative", zIndex:1, padding:"0 24px 100px", maxWidth:1100, margin:"0 auto" }}>
+        <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:24, overflow:"hidden", display:"grid", gridTemplateColumns:"1fr 1fr" }}>
+          {/* Left */}
+          <div style={{ padding:"60px 56px", display:"flex", flexDirection:"column", justifyContent:"center" }}>
+            <div style={{ display:"inline-flex", alignItems:"center", gap:10, background:"rgba(255,107,43,0.1)", border:`1px solid rgba(255,107,43,0.2)`, borderRadius:10, padding:"8px 16px", marginBottom:28, width:"fit-content" }}>
+              <div style={{ width:28, height:28, background:"rgba(255,107,43,0.15)", borderRadius:8, display:"flex", alignItems:"center", justifyContent:"center", fontSize:14 }}>✏️</div>
+              <span style={{ fontSize:12, fontWeight:700, letterSpacing:"0.1em", textTransform:"uppercase", color:C.orange }}>Content Studio</span>
+            </div>
+            <h2 style={{ fontFamily:"Syne,sans-serif", fontSize:"clamp(28px,3vw,44px)", fontWeight:800, color:"#fff", letterSpacing:"-0.03em", lineHeight:1.1, marginBottom:18 }}>
+              Create content <span style={{color:C.orange}}>effortlessly</span>
+            </h2>
+            <p style={{ fontSize:16, color:C.muted, lineHeight:1.7, marginBottom:16 }}>
+              Text, image or video — write and schedule all your content types from one clean editor. No switching apps.
+            </p>
+            <div style={{ display:"flex", gap:12, flexWrap:"wrap", marginBottom:32 }}>
+              {["📝 Text posts","🖼️ Image posts","🎥 Video posts"].map(t=>(
+                <span key={t} style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:100, padding:"6px 14px", fontSize:13, color:C.text, fontWeight:500 }}>{t}</span>
+              ))}
+            </div>
+            <div style={{ display:"flex", gap:14, flexWrap:"wrap" }}>
+              <Btn onClick={onSignup} style={{ borderRadius:100, padding:"13px 28px", fontSize:15 }}>Try Studio →</Btn>
+              <Btn variant="ghost" onClick={onSignup} style={{ borderRadius:100, padding:"13px 28px", fontSize:15 }}>View examples</Btn>
+            </div>
+          </div>
+          {/* Right */}
+          <div style={{ background:C.surface, borderLeft:`1px solid ${C.border}`, padding:40, display:"flex", flexDirection:"column", gap:14, justifyContent:"center" }}>
+            {[
+              { icon:"🖼️", name:"Post Templates", desc:"50+ ready-made templates for carousels, announcements & promos", badge:"NEW", bc:C.orange },
+              { icon:"🤖", name:"AI Caption Writer", desc:"Platform-native captions generated in one click for all post types", badge:"PRO", bc:C.amber },
+              { icon:"#️⃣", name:"Hashtag Suggester", desc:"Smart hashtag sets ranked by reach and relevance for your niche", badge:"NEW", bc:C.orange },
+              { icon:"🎨", name:"Brand Kit", desc:"Save your logo, colours and fonts — applied across every post automatically", badge:"PRO", bc:C.amber },
+            ].map(c=>(
+              <div key={c.name} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:14, padding:"18px 20px", display:"flex", alignItems:"center", gap:16 }}>
+                <div style={{ width:44, height:44, background:"rgba(255,107,43,0.1)", borderRadius:12, display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0 }}>{c.icon}</div>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontFamily:"Syne,sans-serif", fontSize:14, fontWeight:700, color:"#fff", marginBottom:3 }}>{c.name}</div>
+                  <div style={{ fontSize:12, color:C.muted, lineHeight:1.5 }}>{c.desc}</div>
+                </div>
+                <span style={{ fontSize:10, fontWeight:700, padding:"3px 10px", borderRadius:100, background:`${c.bc}22`, color:c.bc, whiteSpace:"nowrap" }}>{c.badge}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── REVIEWS SECTION ── */}
+      <section style={{ position:"relative", zIndex:1, padding:"0 24px 100px", maxWidth:1100, margin:"0 auto" }}>
+        <div style={{ textAlign:"center", marginBottom:56 }}>
+          <p style={{ fontSize:12, textTransform:"uppercase", letterSpacing:"0.15em", color:C.orange, fontWeight:600, marginBottom:16 }}>Reviews</p>
+          <h2 style={{ fontFamily:"Syne,sans-serif", fontSize:"clamp(32px,4vw,52px)", fontWeight:800, color:"#fff", letterSpacing:"-0.03em", lineHeight:1.1, marginBottom:16 }}>
+            What our users say
+          </h2>
+          <p style={{ fontSize:17, color:C.muted, maxWidth:500, margin:"0 auto", lineHeight:1.7 }}>
+            We just launched — be the first to share your experience with Postronaut.
+          </p>
+        </div>
+
+        {/* Empty state + submit form */}
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:24, alignItems:"start" }}>
+
+          {/* Empty state */}
+          <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:20, padding:40, textAlign:"center" }}>
+            <div style={{ fontSize:56, marginBottom:20 }}>🌟</div>
+            <h3 style={{ fontFamily:"Syne,sans-serif", fontSize:20, fontWeight:700, color:"#fff", marginBottom:12 }}>No reviews yet</h3>
+            <p style={{ fontSize:14, color:C.muted, lineHeight:1.7, marginBottom:24 }}>
+              Postronaut just launched! Try it for free and be the very first person to leave a review. Your feedback helps us build a better product.
+            </p>
+            <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+              {[
+                { icon:"⚡", text:"Takes less than 2 minutes to try" },
+                { icon:"🆓", text:"Free plan — no credit card needed" },
+                { icon:"💬", text:"Your review helps other founders" },
+              ].map(i=>(
+                <div key={i.text} style={{ display:"flex", alignItems:"center", gap:12, background:C.surface, borderRadius:10, padding:"12px 16px" }}>
+                  <span style={{ fontSize:18 }}>{i.icon}</span>
+                  <span style={{ fontSize:13, color:C.text }}>{i.text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Review submission form */}
+          <ReviewForm onSignup={onSignup} />
         </div>
       </section>
 
