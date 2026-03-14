@@ -1,5 +1,11 @@
 'use client'
 import { useState, useEffect } from 'react'
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+)
 
 const C = {
   black:"#080810", deep:"#0d0d1a", surface:"#12121f", card:"#17172a",
@@ -439,13 +445,67 @@ function AuthPage({ mode, onAuth, onSwitch }) {
   const [email, setEmail] = useState("")
   const [pass, setPass] = useState("")
   const [err, setErr] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [verifyScreen, setVerifyScreen] = useState(false)
 
-  const submit = () => {
-    if (!email||!pass) { setErr("Please fill in all fields"); return }
-    if (mode==="signup"&&!name) { setErr("Please enter your name"); return }
-    if (pass.length<6) { setErr("Password must be at least 6 characters"); return }
-    onAuth({ name:name||email.split("@")[0], email })
+  const submit = async () => {
+    if (!email || !pass) { setErr("Please fill in all fields"); return }
+    if (mode === "signup" && !name) { setErr("Please enter your name"); return }
+    if (pass.length < 6) { setErr("Password must be at least 6 characters"); return }
+    setLoading(true)
+    setErr("")
+
+    if (mode === "signup") {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password: pass,
+        options: { data: { full_name: name } }
+      })
+      if (error) { setErr(error.message); setLoading(false) }
+      else { setVerifyScreen(true); setLoading(false) }
+    } else {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass })
+      if (error) { setErr(error.message); setLoading(false) }
+      else {
+        const userName = data.user?.user_metadata?.full_name || email.split("@")[0]
+        onAuth({ name: userName, email: data.user.email })
+        setLoading(false)
+      }
+    }
   }
+
+  // Email verification sent screen
+  if (verifyScreen) return (
+    <div style={{ height:"100vh", background:C.black, display:"flex", alignItems:"center", justifyContent:"center", padding:24 }}>
+      <div style={{ textAlign:"center", maxWidth:440 }}>
+        <div style={{ fontSize:72, marginBottom:24 }}>📧</div>
+        <h2 style={{ fontFamily:"Syne,sans-serif", fontSize:30, fontWeight:800, color:"#fff", marginBottom:16, letterSpacing:"-0.03em" }}>Check your email!</h2>
+        <p style={{ color:C.muted, fontSize:16, lineHeight:1.7, marginBottom:12 }}>
+          We sent a verification link to
+        </p>
+        <p style={{ color:C.orange, fontSize:16, fontWeight:600, marginBottom:24 }}>{email}</p>
+        <p style={{ color:C.muted, fontSize:14, lineHeight:1.7, marginBottom:32 }}>
+          Click the link in that email to activate your account. Check your spam folder if you don't see it within a minute.
+        </p>
+        <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:14, padding:"20px 24px", marginBottom:24 }}>
+          {[
+            "Open your email inbox",
+            `Find email from Postronaut`,
+            "Click the verification link",
+            "You will be redirected to your dashboard",
+          ].map((step, i) => (
+            <div key={i} style={{ display:"flex", alignItems:"center", gap:12, padding:"10px 0", borderBottom: i < 3 ? `1px solid ${C.border}` : "none" }}>
+              <div style={{ width:24, height:24, borderRadius:"50%", background:`linear-gradient(135deg,${C.orange},#e85a1a)`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:11, fontWeight:700, color:"#fff", flexShrink:0 }}>{i+1}</div>
+              <span style={{ fontSize:13, color:C.text }}>{step}</span>
+            </div>
+          ))}
+        </div>
+        <button onClick={()=>setVerifyScreen(false)} style={{ background:"none", border:`1px solid ${C.border}`, borderRadius:10, color:C.muted, padding:"10px 24px", cursor:"pointer", fontSize:14, fontFamily:"'DM Sans',sans-serif" }}>
+          ← Back to sign up
+        </button>
+      </div>
+    </div>
+  )
 
   return (
     <div style={{ height:"100vh", background:C.black, display:"flex", alignItems:"center", justifyContent:"center", padding:24 }}>
@@ -465,7 +525,9 @@ function AuthPage({ mode, onAuth, onSwitch }) {
           {mode==="signup"&&<div style={{ marginBottom:14 }}><label style={{ fontSize:12, color:C.muted, fontWeight:500, display:"block", marginBottom:7 }}>Full Name</label><Input value={name} onChange={setName} placeholder="Jane Smith"/></div>}
           <div style={{ marginBottom:14 }}><label style={{ fontSize:12, color:C.muted, fontWeight:500, display:"block", marginBottom:7 }}>Email</label><Input type="email" value={email} onChange={setEmail} placeholder="you@example.com"/></div>
           <div style={{ marginBottom:24 }}><label style={{ fontSize:12, color:C.muted, fontWeight:500, display:"block", marginBottom:7 }}>Password</label><Input type="password" value={pass} onChange={setPass} placeholder="Min 6 characters"/></div>
-          <Btn onClick={submit} style={{ width:"100%", justifyContent:"center", borderRadius:10, padding:"13px" }}>{mode==="login"?"Log in →":"Create free account →"}</Btn>
+          <Btn onClick={submit} disabled={loading} style={{ width:"100%", justifyContent:"center", borderRadius:10, padding:"13px" }}>
+            {loading ? "Please wait..." : mode==="login" ? "Log in →" : "Create free account →"}
+          </Btn>
           <p style={{ textAlign:"center", fontSize:13, color:C.muted, marginTop:20 }}>
             {mode==="login"?"Don't have an account? ":"Already have an account? "}
             <span onClick={onSwitch} style={{ color:C.orange, cursor:"pointer", fontWeight:500 }}>{mode==="login"?"Sign up free":"Log in"}</span>
@@ -858,8 +920,56 @@ function Dashboard({ user, onLogout }) {
 export default function App() {
   const [screen, setScreen] = useState("landing")
   const [user, setUser] = useState(null)
-  const handleAuth = (u) => { setUser({ name:u.name, email:u.email, plan:"Founder" }); setScreen("app") }
-  const handleLogout = () => { setUser(null); setScreen("landing") }
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    // Check if user is already logged in
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        const name = session.user.user_metadata?.full_name || session.user.email.split("@")[0]
+        setUser({ name, email: session.user.email, plan: "Free" })
+        setScreen("app")
+      }
+      setLoading(false)
+    })
+
+    // Listen for auth changes (login, logout, email confirmed)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" && session?.user) {
+        const name = session.user.user_metadata?.full_name || session.user.email.split("@")[0]
+        setUser({ name, email: session.user.email, plan: "Free" })
+        setScreen("app")
+      }
+      if (event === "SIGNED_OUT") {
+        setUser(null)
+        setScreen("landing")
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const handleAuth = (u) => {
+    setUser({ name: u.name, email: u.email, plan: "Free" })
+    setScreen("app")
+  }
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    setUser(null)
+    setScreen("landing")
+  }
+
+  // Show loading spinner while checking session
+  if (loading) return (
+    <div style={{ height:"100vh", background:C.black, display:"flex", alignItems:"center", justifyContent:"center" }}>
+      <div style={{ textAlign:"center" }}>
+        <div style={{ width:40, height:40, border:`3px solid rgba(255,107,43,0.2)`, borderTop:`3px solid ${C.orange}`, borderRadius:"50%", animation:"spin 0.8s linear infinite", margin:"0 auto 16px" }}/>
+        <p style={{ color:C.muted, fontSize:14 }}>Loading Postronaut...</p>
+      </div>
+      <style>{`@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}`}</style>
+    </div>
+  )
+
   return (
     <>
       {screen==="landing"&&<LandingPage onLogin={()=>setScreen("login")} onSignup={()=>setScreen("signup")}/>}
