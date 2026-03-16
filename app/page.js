@@ -5,7 +5,7 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 const supabase = createClient(supabaseUrl, supabaseKey)
-)
+
 
 const C = {
   black:"#080810", deep:"#0d0d1a", surface:"#12121f", card:"#17172a",
