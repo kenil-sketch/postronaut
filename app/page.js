@@ -32,17 +32,8 @@ const NAV = [
   { id:"analytics", icon:"📈", label:"Analytics" },
 ]
 
-const SAMPLE_POSTS = [
-  { id:1, content:"🚀 Excited to share our product launch!", platforms:["instagram","x","linkedin"], status:"published", scheduledAt:"2025-03-01 09:00" },
-  { id:2, content:"Behind the scenes of how we built our MVP in 30 days.", platforms:["x","linkedin"], status:"scheduled", scheduledAt:"2025-03-10 18:00" },
-  { id:3, content:"10 lessons from our first year as founders.", platforms:["linkedin"], status:"draft", scheduledAt:null },
-]
-
-const SAMPLE_ACCOUNTS = [
-  { id:1, platform:"instagram", name:"My Brand", handle:"mybrand" },
-  { id:2, platform:"linkedin",  name:"Arjun Joshi", handle:"arjunjoshi" },
-  { id:3, platform:"x",         name:"Arjun", handle:"arjun_builds" },
-]
+const SAMPLE_POSTS = []
+const SAMPLE_ACCOUNTS = []
 
 function PlatformIcon({ id, size=16 }) {
   const s = { width:size, height:size, flexShrink:0, display:"block" }
