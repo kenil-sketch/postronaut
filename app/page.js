@@ -549,7 +549,7 @@ function Overview({ posts, accounts, setPage }) {
         {[{label:"Connected",val:accounts.length,icon:"🔗",sub:"accounts"},{label:"Scheduled",val:scheduled,icon:"📅",sub:"posts"},{label:"Published",val:published,icon:"✅",sub:"this month"},{label:"Total Posts",val:posts.length,icon:"📝",sub:"all time"}].map(s=>(
           <Card key={s.label} style={{ padding:22 }}>
             <div style={{ fontSize:22, marginBottom:10 }}>{s.icon}</div>
-            <div style={{ fontFamily:"Syne,sans-serif", fontSize:30, fontWeight:800, color:"#fff", marginBottom:2 }}>{s.val}</div>
+            <div style={{ fontFamily:"Syne,sans-serif", fontSize:30, fontWeight:800, color:"#fff", marginBottom:2 }}>{s.val || 0}</div>
             <div style={{ fontSize:12, color:C.muted }}>{s.label}</div>
             <div style={{ fontSize:11, color:C.orange, marginTop:3 }}>{s.sub}</div>
           </Card>
