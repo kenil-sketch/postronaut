@@ -381,7 +381,17 @@ function AuthPage({ mode, onAuth, onSwitch }) {
           {err&&<div style={{ background:"rgba(255,107,107,0.1)", border:"1px solid rgba(255,107,107,0.25)", borderRadius:10, padding:"11px 14px", color:"#ff8080", fontSize:13, marginBottom:18 }}>{err}</div>}
           {mode==="signup"&&<div style={{ marginBottom:14 }}><label style={{ fontSize:12, color:C.muted, fontWeight:500, display:"block", marginBottom:7 }}>Full Name</label><Input value={name} onChange={setName} placeholder="Jane Smith"/></div>}
           <div style={{ marginBottom:14 }}><label style={{ fontSize:12, color:C.muted, fontWeight:500, display:"block", marginBottom:7 }}>Email</label><Input type="email" value={email} onChange={setEmail} placeholder="you@example.com"/></div>
-          <div style={{ marginBottom:24 }}><label style={{ fontSize:12, color:C.muted, fontWeight:500, display:"block", marginBottom:7 }}>Password</label><Input type="password" value={pass} onChange={setPass} placeholder="Min 6 characters"/></div>
+          <div style={{ marginBottom:8 }}><label style={{ fontSize:12, color:C.muted, fontWeight:500, display:"block", marginBottom:7 }}>Password</label><Input type="password" value={pass} onChange={setPass} placeholder="Min 6 characters"/></div>
+{mode==="login"&&(
+  <div style={{ textAlign:"right", marginBottom:24 }}>
+    <span onClick={async()=>{
+      if(!email){alert("Enter your email address first");return}
+      const{error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin})
+      if(error){alert(error.message)}else{alert("Password reset link sent! Check your email.")}
+    }} style={{ fontSize:13, color:C.orange, cursor:"pointer" }}>Forgot password?</span>
+  </div>
+)}
+{mode!=="login"&&<div style={{ marginBottom:24 }}/>}
           <Btn onClick={submit} disabled={loading} style={{ width:"100%", justifyContent:"center", borderRadius:10, padding:"13px" }}>{loading?"Please wait...":mode==="login"?"Log in →":"Create free account →"}</Btn>
           <p style={{ textAlign:"center", fontSize:13, color:C.muted, marginTop:20 }}>
             {mode==="login"?"Don't have an account? ":"Already have an account? "}
