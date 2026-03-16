@@ -39,6 +39,8 @@ const NAV = [
   { id:"schedule",  icon:"📅", label:"Schedule" },
   { id:"accounts",  icon:"🔗", label:"Accounts" },
   { id:"analytics", icon:"📈", label:"Analytics" },
+  { id:"studio",    icon:"✏️", label:"Content Studio" },
+  { id:"review",    icon:"⭐", label:"Leave a Review" },
 ]
 
 const SAMPLE_POSTS = []
@@ -381,17 +383,7 @@ function AuthPage({ mode, onAuth, onSwitch }) {
           {err&&<div style={{ background:"rgba(255,107,107,0.1)", border:"1px solid rgba(255,107,107,0.25)", borderRadius:10, padding:"11px 14px", color:"#ff8080", fontSize:13, marginBottom:18 }}>{err}</div>}
           {mode==="signup"&&<div style={{ marginBottom:14 }}><label style={{ fontSize:12, color:C.muted, fontWeight:500, display:"block", marginBottom:7 }}>Full Name</label><Input value={name} onChange={setName} placeholder="Jane Smith"/></div>}
           <div style={{ marginBottom:14 }}><label style={{ fontSize:12, color:C.muted, fontWeight:500, display:"block", marginBottom:7 }}>Email</label><Input type="email" value={email} onChange={setEmail} placeholder="you@example.com"/></div>
-          <div style={{ marginBottom:8 }}><label style={{ fontSize:12, color:C.muted, fontWeight:500, display:"block", marginBottom:7 }}>Password</label><Input type="password" value={pass} onChange={setPass} placeholder="Min 6 characters"/></div>
-{mode==="login"&&(
-  <div style={{ textAlign:"right", marginBottom:24 }}>
-    <span onClick={async()=>{
-      if(!email){alert("Enter your email address first");return}
-      const{error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin})
-      if(error){alert(error.message)}else{alert("Password reset link sent! Check your email.")}
-    }} style={{ fontSize:13, color:C.orange, cursor:"pointer" }}>Forgot password?</span>
-  </div>
-)}
-{mode!=="login"&&<div style={{ marginBottom:24 }}/>}
+          <div style={{ marginBottom:24 }}><label style={{ fontSize:12, color:C.muted, fontWeight:500, display:"block", marginBottom:7 }}>Password</label><Input type="password" value={pass} onChange={setPass} placeholder="Min 6 characters"/></div>
           <Btn onClick={submit} disabled={loading} style={{ width:"100%", justifyContent:"center", borderRadius:10, padding:"13px" }}>{loading?"Please wait...":mode==="login"?"Log in →":"Create free account →"}</Btn>
           <p style={{ textAlign:"center", fontSize:13, color:C.muted, marginTop:20 }}>
             {mode==="login"?"Don't have an account? ":"Already have an account? "}
@@ -736,6 +728,137 @@ function Analytics({ posts, accounts }) {
   )
 }
 
+
+// ── CONTENT STUDIO PAGE ──
+function StudioPage() {
+  return (
+    <div style={{ padding:"32px 36px", overflowY:"auto", height:"100%" }}>
+      <div style={{ marginBottom:28 }}>
+        <h1 style={{ fontFamily:"Syne,sans-serif", fontSize:26, fontWeight:800, color:"#fff", marginBottom:4 }}>Content Studio ✏️</h1>
+        <p style={{ color:"#7878a0", fontSize:14 }}>Create, organise and schedule all your content types</p>
+      </div>
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:16, marginBottom:24 }}>
+        {[
+          { icon:"🖼️", name:"Post Templates", desc:"50+ ready-made templates for carousels, announcements & promos", badge:"NEW", bc:"#ff6b2b" },
+          { icon:"🤖", name:"AI Caption Writer", desc:"Platform-native captions generated in one click for text, image and video posts", badge:"PRO", bc:"#ffb347" },
+          { icon:"#️⃣", name:"Hashtag Suggester", desc:"Smart hashtag sets ranked by reach and relevance for your niche", badge:"NEW", bc:"#ff6b2b" },
+          { icon:"🎨", name:"Brand Kit", desc:"Save your logo, colours and fonts — applied across every post automatically", badge:"PRO", bc:"#ffb347" },
+          { icon:"📝", name:"Text Post Editor", desc:"Write and format text posts optimised for each platform character limit", badge:"SOON", bc:"#7878a0" },
+          { icon:"🖼️", name:"Image Post Editor", desc:"Upload and crop images, add captions and alt text for accessibility", badge:"SOON", bc:"#7878a0" },
+          { icon:"🎥", name:"Video Post Scheduler", desc:"Schedule video content to YouTube, Instagram Reels and more", badge:"SOON", bc:"#7878a0" },
+          { icon:"📅", name:"Content Calendar", desc:"Visual drag-and-drop calendar to plan your entire content strategy", badge:"SOON", bc:"#7878a0" },
+        ].map(c=>(
+          <div key={c.name} style={{ background:"#17172a", border:"1px solid rgba(255,255,255,0.07)", borderRadius:14, padding:"20px", display:"flex", alignItems:"flex-start", gap:16 }}>
+            <div style={{ width:48, height:48, background:"rgba(255,107,43,0.1)", borderRadius:12, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, flexShrink:0 }}>{c.icon}</div>
+            <div style={{ flex:1 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:6 }}>
+                <div style={{ fontFamily:"Syne,sans-serif", fontSize:15, fontWeight:700, color:"#fff" }}>{c.name}</div>
+                <span style={{ fontSize:10, fontWeight:700, padding:"3px 9px", borderRadius:100, background:c.bc+"22", color:c.bc }}>{c.badge}</span>
+              </div>
+              <div style={{ fontSize:13, color:"#7878a0", lineHeight:1.6 }}>{c.desc}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{ background:"rgba(255,107,43,0.06)", border:"1px solid rgba(255,107,43,0.2)", borderRadius:14, padding:"20px 24px" }}>
+        <div style={{ fontFamily:"Syne,sans-serif", fontSize:15, fontWeight:700, color:"#fff", marginBottom:6 }}>🚀 Content Studio is coming soon</div>
+        <div style={{ fontSize:13, color:"#7878a0", lineHeight:1.6 }}>We are actively building these features. PRO features will be available on Creator plan and above. NEW features launch in the next update.</div>
+      </div>
+    </div>
+  )
+}
+
+// ── REVIEW DASHBOARD PAGE ──
+function ReviewDashboard({ user }) {
+  const plan = (user?.plan||"free").toLowerCase()
+  const isPaid = plan !== "free"
+  const [name, setName] = useState(user?.name||"" )
+  const [role, setRole] = useState("")
+  const [review, setReview] = useState("")
+  const [rating, setRating] = useState(0)
+  const [hover, setHover] = useState(0)
+  const [submitted, setSubmitted] = useState(false)
+
+  const submit = () => {
+    if (!review.trim()||rating===0){alert("Please fill in rating and review!");return}
+    setSubmitted(true)
+  }
+
+  if (!isPaid) return (
+    <div style={{ padding:"32px 36px", overflowY:"auto", height:"100%" }}>
+      <div style={{ marginBottom:28 }}>
+        <h1 style={{ fontFamily:"Syne,sans-serif", fontSize:26, fontWeight:800, color:"#fff", marginBottom:4 }}>Leave a Review ⭐</h1>
+        <p style={{ color:"#7878a0", fontSize:14 }}>Share your experience with Postronaut</p>
+      </div>
+      <div style={{ background:"#17172a", border:"1px solid rgba(255,255,255,0.07)", borderRadius:20, padding:48, textAlign:"center", maxWidth:500 }}>
+        <div style={{ fontSize:56, marginBottom:20 }}>🔒</div>
+        <h3 style={{ fontFamily:"Syne,sans-serif", fontSize:20, fontWeight:700, color:"#fff", marginBottom:12 }}>Reviews for paid users only</h3>
+        <p style={{ fontSize:14, color:"#7878a0", lineHeight:1.7, marginBottom:24 }}>
+          To ensure genuine reviews, only users on a paid plan (Creator, Founder or Agency) can submit a review. Upgrade your plan to share your experience.
+        </p>
+        <div style={{ background:"rgba(255,107,43,0.08)", border:"1px solid rgba(255,107,43,0.2)", borderRadius:12, padding:"16px 20px" }}>
+          <div style={{ fontSize:13, color:"#ffb347", fontWeight:600 }}>✦ You are on the Free plan</div>
+          <div style={{ fontSize:12, color:"#7878a0", marginTop:4 }}>Upgrade to Creator (/mo) to unlock reviews and more platforms</div>
+        </div>
+      </div>
+    </div>
+  )
+
+  if (submitted) return (
+    <div style={{ padding:"32px 36px", display:"flex", alignItems:"center", justifyContent:"center", height:"100%" }}>
+      <div style={{ textAlign:"center" }}>
+        <div style={{ fontSize:64, marginBottom:20 }}>🎉</div>
+        <h2 style={{ fontFamily:"Syne,sans-serif", fontSize:26, fontWeight:800, color:"#fff", marginBottom:12 }}>Thank you, {user.name}!</h2>
+        <p style={{ fontSize:15, color:"#7878a0", lineHeight:1.7 }}>Your review has been submitted and will appear on the website once verified.</p>
+      </div>
+    </div>
+  )
+
+  return (
+    <div style={{ padding:"32px 36px", overflowY:"auto", height:"100%" }}>
+      <div style={{ marginBottom:28 }}>
+        <h1 style={{ fontFamily:"Syne,sans-serif", fontSize:26, fontWeight:800, color:"#fff", marginBottom:4 }}>Leave a Review ⭐</h1>
+        <p style={{ color:"#7878a0", fontSize:14 }}>Share your experience with the Postronaut community</p>
+      </div>
+      <div style={{ maxWidth:560 }}>
+        <div style={{ background:"rgba(74,222,128,0.08)", border:"1px solid rgba(74,222,128,0.2)", borderRadius:12, padding:"14px 20px", marginBottom:28, display:"flex", alignItems:"center", gap:10 }}>
+          <span style={{ fontSize:16 }}>✅</span>
+          <span style={{ fontSize:13, color:"#4ade80" }}>You are on the <strong style={{textTransform:"capitalize"}}>{plan}</strong> plan — you can submit a review!</span>
+        </div>
+        <div style={{ background:"#17172a", border:"1px solid rgba(255,255,255,0.07)", borderRadius:20, padding:36 }}>
+          <div style={{ marginBottom:20 }}>
+            <label style={{ fontSize:12, color:"#7878a0", fontWeight:500, display:"block", marginBottom:10 }}>Your rating</label>
+            <div style={{ display:"flex", gap:8 }}>
+              {[1,2,3,4,5].map(star=>(
+                <span key={star} onClick={()=>setRating(star)} onMouseEnter={()=>setHover(star)} onMouseLeave={()=>setHover(0)}
+                  style={{ fontSize:36, cursor:"pointer", color:(hover||rating)>=star?"#ffb347":"rgba(255,255,255,0.15)", transition:"all 0.1s" }}>★</span>
+              ))}
+            </div>
+          </div>
+          <div style={{ marginBottom:14 }}>
+            <label style={{ fontSize:12, color:"#7878a0", fontWeight:500, display:"block", marginBottom:7 }}>Your name</label>
+            <input value={name} onChange={e=>setName(e.target.value)} placeholder="Your name"
+              style={{ width:"100%", background:"#12121f", border:"1px solid rgba(255,255,255,0.07)", borderRadius:10, color:"#e8e8f0", fontSize:14, padding:"11px 14px", outline:"none", fontFamily:"'DM Sans',sans-serif" }}/>
+          </div>
+          <div style={{ marginBottom:14 }}>
+            <label style={{ fontSize:12, color:"#7878a0", fontWeight:500, display:"block", marginBottom:7 }}>Your role (optional)</label>
+            <input value={role} onChange={e=>setRole(e.target.value)} placeholder="e.g. Founder at MyStartup"
+              style={{ width:"100%", background:"#12121f", border:"1px solid rgba(255,255,255,0.07)", borderRadius:10, color:"#e8e8f0", fontSize:14, padding:"11px 14px", outline:"none", fontFamily:"'DM Sans',sans-serif" }}/>
+          </div>
+          <div style={{ marginBottom:24 }}>
+            <label style={{ fontSize:12, color:"#7878a0", fontWeight:500, display:"block", marginBottom:7 }}>Your review</label>
+            <textarea value={review} onChange={e=>setReview(e.target.value)} placeholder="Share what you love about Postronaut..." rows={4}
+              style={{ width:"100%", background:"#12121f", border:"1px solid rgba(255,255,255,0.07)", borderRadius:10, color:"#e8e8f0", fontSize:14, padding:"11px 14px", outline:"none", fontFamily:"'DM Sans',sans-serif", resize:"none" }}/>
+          </div>
+          <button onClick={submit} style={{ width:"100%", padding:"13px", borderRadius:10, border:"none", background:"linear-gradient(135deg,#ff6b2b,#e85a1a)", color:"#fff", fontSize:15, fontWeight:600, cursor:"pointer", fontFamily:"'DM Sans',sans-serif" }}>
+            Submit Review →
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function Dashboard({ user, onLogout }) {
   const [page, setPage] = useState("overview")
   const [posts, setPosts] = useState(SAMPLE_POSTS)
@@ -746,12 +869,14 @@ function Dashboard({ user, onLogout }) {
     compose:  <Compose accounts={accounts} setPosts={setPosts} setPage={setPage}/>,
     schedule: <Schedule posts={posts} setPosts={setPosts} setPage={setPage}/>,
     accounts: <Accounts accounts={accounts} setAccounts={setAccounts} user={user}/>,
-    analytics:<Analytics posts={posts} accounts={accounts}/>
+    analytics:<Analytics posts={posts} accounts={accounts}/>,
+    studio:   <StudioPage/>,
+    review:   <ReviewDashboard user={user}/>
   }
   return (
     <div style={{ display:"flex", height:"100vh", background:C.black, overflow:"hidden" }}>
       <aside style={{ width:220, flexShrink:0, background:C.deep, borderRight:`1px solid ${C.border}`, display:"flex", flexDirection:"column", padding:"18px 10px" }}>
-        <div style={{ display:"flex", alignItems:"center", gap:9, padding:"0 8px 18px", borderBottom:`1px solid ${C.border}`, marginBottom:14 }}>
+        <div onClick={()=>setPage("overview")} style={{ display:"flex", alignItems:"center", gap:9, padding:"0 8px 18px", borderBottom:`1px solid ${C.border}`, marginBottom:14, cursor:"pointer" }}>
           <div style={{ width:30, height:30, background:`linear-gradient(135deg,${C.orange},${C.amber})`, borderRadius:8, display:"flex", alignItems:"center", justifyContent:"center", fontSize:14 }}>🚀</div>
           <span style={{ fontFamily:"Syne,sans-serif", fontWeight:800, fontSize:16, color:"#fff" }}>Post<span style={{color:C.orange}}>ronaut</span></span>
         </div>
