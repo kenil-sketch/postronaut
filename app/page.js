@@ -576,7 +576,7 @@ function Schedule({ posts, setPosts, setPage }) {
   )
 }
 
-function Accounts({ accounts, setAccounts, user }) {
+function Accounts({ accounts, setAccounts, user, setPage }) {
   const [adding, setAdding] = useState(null)
   const [form, setForm] = useState({ name:"", handle:"" })
   const plan = (user?.plan||"free").toLowerCase()
@@ -606,7 +606,7 @@ function Accounts({ accounts, setAccounts, user }) {
           <span style={{ fontSize:16 }}>✦</span>
           <span style={{ fontSize:13, color:C.text }}><strong style={{ color:C.orange, textTransform:"capitalize" }}>{plan} Plan</strong> — {accounts.length}/{accountLimit} accounts connected</span>
         </div>
-        {plan==="free"&&<div style={{ fontSize:12, color:C.muted }}>Upgrade to <span style={{ color:C.amber, fontWeight:600 }}>Creator ($7/mo)</span> to unlock 8 platforms</div>}
+        {plan==="free"&&<div style={{ fontSize:12, color:C.muted }}><span onClick={()=>setPage && setPage("plans")} style={{ cursor:"pointer" }}>Upgrade to <span style={{ color:C.amber, fontWeight:600, textDecoration:"underline" }}>Creator ($7/mo)</span> to unlock 8 platforms →</span></div>}
       </div>
 
       {accounts.length>0&&(
@@ -859,6 +859,115 @@ function ReviewDashboard({ user }) {
   )
 }
 
+
+// ── PLANS PAGE ──
+function PlansPage({ user, setPage }) {
+  const currentPlan = (user?.plan||"free").toLowerCase()
+  const plans = [
+    {
+      id:"free", name:"Free", price:0, tagline:"Perfect for getting started",
+      features:["2 social accounts (Instagram & Facebook)","15 scheduled posts / month","Basic analytics","1 user"],
+      locked:["AI captions","Best time to post","Content recycling","Team collaboration"]
+    },
+    {
+      id:"creator", name:"Creator", price:7, tagline:"Ideal for influencers & side hustlers",
+      features:["8 social accounts","150 scheduled posts / month","Advanced analytics","AI caption suggestions","Best time to post","1 user"],
+      locked:["Team collaboration"]
+    },
+    {
+      id:"founder", name:"Founder", price:15, tagline:"For startup founders & serious creators",
+      features:["Unlimited social accounts","Unlimited scheduled posts","Full analytics + reports","AI captions + content recycling","Best time to post","3 team seats","Human support (chat + email)"],
+      locked:[], popular:true
+    },
+    {
+      id:"agency", name:"Agency", price:40, tagline:"For agencies & large startup teams",
+      features:["Unlimited accounts","Unlimited posts","White-label reports","10 team seats","Client approval workflows","Priority human support","Custom onboarding call"],
+      locked:[]
+    },
+  ]
+
+  return (
+    <div style={{ padding:"32px 36px", overflowY:"auto", height:"100%" }}>
+      <div style={{ marginBottom:32 }}>
+        <h1 style={{ fontFamily:"Syne,sans-serif", fontSize:26, fontWeight:800, color:"#fff", marginBottom:4 }}>Choose Your Plan 🚀</h1>
+        <p style={{ color:"#7878a0", fontSize:14 }}>Upgrade anytime · Cancel anytime · No hidden fees</p>
+      </div>
+
+      {/* Current plan banner */}
+      <div style={{ background:"rgba(255,107,43,0.06)", border:"1px solid rgba(255,107,43,0.2)", borderRadius:14, padding:"14px 20px", marginBottom:32, display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:10 }}>
+        <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+          <span style={{ fontSize:18 }}>✦</span>
+          <span style={{ fontSize:14, color:"#e8e8f0" }}>You are currently on the <strong style={{ color:"#ff6b2b", textTransform:"capitalize" }}>{currentPlan} Plan</strong></span>
+        </div>
+        {currentPlan==="free" && <div style={{ fontSize:13, color:"#ffb347" }}>Upgrade to unlock all features</div>}
+        {currentPlan!=="free" && <div style={{ fontSize:13, color:"#4ade80" }}>✓ Active subscription</div>}
+      </div>
+
+      {/* Plan cards */}
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16, marginBottom:32 }}>
+        {plans.map(plan=>(
+          <div key={plan.id} style={{
+            background: plan.popular ? "linear-gradient(160deg,rgba(255,107,43,0.1),#17172a)" : "#17172a",
+            border: plan.id===currentPlan ? "1px solid #4ade80" : plan.popular ? "1px solid #ff6b2b" : "1px solid rgba(255,255,255,0.07)",
+            borderRadius:18, padding:28, position:"relative",
+            boxShadow: plan.popular ? "0 0 40px rgba(255,107,43,0.12)" : "none"
+          }}>
+            {plan.popular && (
+              <div style={{ position:"absolute", top:-12, left:"50%", transform:"translateX(-50%)", background:"linear-gradient(135deg,#ff6b2b,#e85a1a)", color:"#fff", fontSize:11, fontWeight:700, padding:"4px 16px", borderRadius:100, whiteSpace:"nowrap", letterSpacing:"0.05em", textTransform:"uppercase" }}>⚡ Most Popular</div>
+            )}
+            {plan.id===currentPlan && (
+              <div style={{ position:"absolute", top:-12, left:"50%", transform:"translateX(-50%)", background:"linear-gradient(135deg,#4ade80,#22c55e)", color:"#000", fontSize:11, fontWeight:700, padding:"4px 16px", borderRadius:100, whiteSpace:"nowrap" }}>✓ Current Plan</div>
+            )}
+
+            <div style={{ fontFamily:"Syne,sans-serif", fontSize:12, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.1em", color:"#7878a0", marginBottom:14 }}>{plan.name}</div>
+            <div style={{ fontFamily:"Syne,sans-serif", fontSize:40, fontWeight:800, color:"#fff", letterSpacing:"-0.04em", lineHeight:1, marginBottom:8 }}>
+              {plan.price===0 ? "$0" : <><sup style={{ fontSize:20, verticalAlign:"top", marginTop:8 }}>$</sup>{plan.price}<span style={{ fontSize:14, color:"#7878a0", fontFamily:"'DM Sans',sans-serif", fontWeight:400 }}> / mo</span></>}
+            </div>
+            <div style={{ fontSize:12, color:"#7878a0", marginBottom:20, lineHeight:1.5 }}>{plan.tagline}</div>
+            <div style={{ height:1, background:"rgba(255,255,255,0.07)", marginBottom:20 }}/>
+
+            <ul style={{ listStyle:"none", marginBottom:24 }}>
+              {plan.features.map(f=>(
+                <li key={f} style={{ display:"flex", alignItems:"flex-start", gap:8, fontSize:12, color:"#e8e8f0", marginBottom:9 }}>
+                  <span style={{ color:"#ff6b2b", flexShrink:0, marginTop:1 }}>✓</span>{f}
+                </li>
+              ))}
+              {plan.locked.map(f=>(
+                <li key={f} style={{ display:"flex", alignItems:"flex-start", gap:8, fontSize:12, color:"#7878a0", marginBottom:9 }}>
+                  <span style={{ flexShrink:0, marginTop:1 }}>✗</span>{f}
+                </li>
+              ))}
+            </ul>
+
+            <button onClick={()=>{
+              if(plan.id===currentPlan){alert("You are already on this plan!");return}
+              alert("Payment integration coming soon! We will notify you by email when payments go live.")
+            }} style={{
+              display:"block", width:"100%", padding:"12px", borderRadius:10, border:"none",
+              background: plan.id===currentPlan ? "rgba(74,222,128,0.1)" : plan.popular ? "linear-gradient(135deg,#ff6b2b,#e85a1a)" : "#12121f",
+              color: plan.id===currentPlan ? "#4ade80" : "#fff",
+              border: plan.id===currentPlan ? "1px solid rgba(74,222,128,0.3)" : plan.popular ? "none" : "1px solid rgba(255,255,255,0.07)",
+              fontSize:13, fontWeight:600, cursor:"pointer", fontFamily:"'DM Sans',sans-serif",
+              boxShadow: plan.popular ? "0 0 20px rgba(255,107,43,0.25)" : "none"
+            }}>
+              {plan.id===currentPlan ? "✓ Current Plan" : plan.price===0 ? "Downgrade to Free" : `Upgrade to ${plan.name} →`}
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {/* Coming soon note */}
+      <div style={{ background:"rgba(255,107,43,0.06)", border:"1px solid rgba(255,107,43,0.15)", borderRadius:14, padding:"20px 24px", display:"flex", alignItems:"center", gap:16 }}>
+        <span style={{ fontSize:28 }}>💳</span>
+        <div>
+          <div style={{ fontFamily:"Syne,sans-serif", fontSize:15, fontWeight:700, color:"#fff", marginBottom:4 }}>Payments launching soon</div>
+          <div style={{ fontSize:13, color:"#7878a0", lineHeight:1.6 }}>We are integrating Stripe payments. You will receive an email notification as soon as paid plans go live. Waitlist users get 30% off their first 3 months.</div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function Dashboard({ user, onLogout }) {
   const [page, setPage] = useState("overview")
   const [posts, setPosts] = useState(SAMPLE_POSTS)
@@ -868,10 +977,11 @@ function Dashboard({ user, onLogout }) {
     overview: <Overview posts={posts} accounts={accounts} setPage={setPage}/>,
     compose:  <Compose accounts={accounts} setPosts={setPosts} setPage={setPage}/>,
     schedule: <Schedule posts={posts} setPosts={setPosts} setPage={setPage}/>,
-    accounts: <Accounts accounts={accounts} setAccounts={setAccounts} user={user}/>,
+    accounts: <Accounts accounts={accounts} setAccounts={setAccounts} user={user} setPage={setPage}/>,
     analytics:<Analytics posts={posts} accounts={accounts}/>,
     studio:   <StudioPage/>,
-    review:   <ReviewDashboard user={user}/>
+    review:   <ReviewDashboard user={user}/>,
+    plans:    <PlansPage user={user} setPage={setPage}/>
   }
   return (
     <div style={{ display:"flex", height:"100vh", background:C.black, overflow:"hidden" }}>
@@ -895,6 +1005,13 @@ function Dashboard({ user, onLogout }) {
           ))}
         </nav>
         <div style={{ borderTop:`1px solid ${C.border}`, paddingTop:10 }}>
+          <div onClick={()=>setPage("plans")} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 12px", borderRadius:9, background:"rgba(255,107,43,0.1)", border:"1px solid rgba(255,107,43,0.25)", marginBottom:8, cursor:"pointer" }}>
+            <span style={{fontSize:15}}>🚀</span>
+            <div>
+              <div style={{ fontSize:12, fontWeight:700, color:C.orange }}>Upgrade to Pro</div>
+              <div style={{ fontSize:10, color:C.muted }}>Unlock more features</div>
+            </div>
+          </div>
           <div onClick={onLogout} style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 12px", borderRadius:9, color:"#ff8080", fontSize:13, fontWeight:500, cursor:"pointer" }}>
             <span style={{fontSize:15}}>🚪</span>Sign out
           </div>
